@@ -43,6 +43,7 @@ public class ventas_ws {
                     product,
                     areaCode,
                     phoneLine)).toString();
+            
             return "[00] - " + id;
 
         } catch (MsgException e) {
@@ -65,6 +66,47 @@ public class ventas_ws {
         try {
 
             return connection.getSaleState(pdv, password, saleId).getState();
+
+        } catch (MsgException e) {
+            
+            return e.getMessage();
+        }
+    }
+    
+    /**
+     * <br>
+     * <pre>
+     * {@code
+     * public String getSaleProviderCode(long pdv, String password, long saleId) {
+     * 
+     *      try {
+     * 
+     *          ...
+     *          ...
+     *      
+     *          return "1111 2222 3333 4444 5555";
+     * 
+     *      } catch (MsgException e) {
+     * 
+     *          return e.getMessage(); // [exception code] - exception message
+     *      }
+     * }
+     * }
+     * </pre>
+     * 
+     * @param pdv punto de venta
+     * @param saleId
+     * @param password
+     * @return String
+     */
+    @WebMethod(operationName = "getSaleProviderCode")
+    public String getSaleProviderCode(@WebParam(name = "pdv") long pdv,
+            @WebParam(name = "password") String password,
+            @WebParam(name = "saleId") long saleId) {
+
+        try {
+            
+            return connection.getSaleState(pdv, password, saleId).getExternalId();
 
         } catch (MsgException e) {
             
