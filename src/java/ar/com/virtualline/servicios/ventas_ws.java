@@ -2,6 +2,7 @@ package ar.com.virtualline.servicios;
 
 import ar.com.virtualline.MsgException;
 import ar.com.virtualline.PinSale;
+import ar.com.virtualline.SaleState;
 import ar.com.virtualline.VirtualLineConnection;
 import ar.com.virtualline.response.DirecTVSale;
 import static ar.com.virtualline.servicios.Const.*;
@@ -19,6 +20,7 @@ public class ventas_ws {
     final VirtualLineConnection connection = new VirtualLineConnection(HOST, PORT, TIME_OUT);
 
     /**
+     * @param remoteId
      * @param pdv
      * @param phoneLine
      * @param password
@@ -28,16 +30,19 @@ public class ventas_ws {
      * @return String
      */
     @WebMethod(operationName = "virtualSale")
-    public String virtualSale(@WebParam(name = "pdv") long pdv,
+    public String virtualSale(
+            @WebParam(name = "remoteId") String remoteId,
+            @WebParam(name = "pdv") long pdv,
             @WebParam(name = "password") String password,
             @WebParam(name = "amount") int amount,
             @WebParam(name = "product") long product,
             @WebParam(name = "areaCode") String areaCode,
             @WebParam(name = "phoneLine") String phoneLine) {
-
+    
         try {
 
-            String id = Long.valueOf(connection.virtualSale(pdv,
+            String id = Long.valueOf(connection.virtualSale(remoteId,
+                    pdv,
                     password,
                     amount,
                     product,
@@ -47,7 +52,6 @@ public class ventas_ws {
             return "[00] - " + id;
 
         } catch (MsgException e) {
-            
             return e.getMessage();
         }
     }
@@ -59,7 +63,8 @@ public class ventas_ws {
      * @return String
      */
     @WebMethod(operationName = "getSaleState")
-    public String getSaleState(@WebParam(name = "pdv") long pdv,
+    public String getSaleState(
+            @WebParam(name = "pdv") long pdv,
             @WebParam(name = "password") String password,
             @WebParam(name = "saleId") long saleId) {
 
@@ -68,7 +73,27 @@ public class ventas_ws {
             return connection.getSaleState(pdv, password, saleId).getState();
 
         } catch (MsgException e) {
-            
+            return e.getMessage();
+        }
+    }
+    
+    /**
+     * @param pdv
+     * @param password
+     * @param remoteId
+     * @return String
+     */
+    @WebMethod(operationName = "getSaleStateByRemoteId")
+    public String getSaleStateByRemoteId(
+            @WebParam(name = "pdv") long pdv,
+            @WebParam(name = "password") String password,
+            @WebParam(name = "remoteId") String remoteId) {
+
+        try {
+
+            return connection.getSaleState(pdv, password, remoteId).getState();
+
+        } catch (MsgException e) {
             return e.getMessage();
         }
     }
@@ -115,6 +140,27 @@ public class ventas_ws {
     }
 
     /**
+     * <br>
+     * <pre>
+     * {@code
+     * public String getSaleExternalState(long pdv, String password, int amount, String areaCode, String phoneLine) {
+     * 
+     *      try {
+     * 
+     *          ...
+     *          ...
+     *      
+     *          return "[00] - " + state + " - " + idTrx; // Example: [00] - OK - 00000000000123456789; 
+     *                                                    // state (OK, RV, PE)
+     * 
+     *      } catch (MsgException e) {
+     * 
+     *          return e.getMessage(); // [exception code] - exception message
+     *      }
+     * }
+     * }
+     * </pre>
+     *
      * @param pdv
      * @param password
      * @param amount
@@ -130,16 +176,18 @@ public class ventas_ws {
             @WebParam(name = "phoneLine") String phoneLine) {
 
         try {
+            
+            SaleState saleState = connection.getSaleState(pdv, password, amount, areaCode, phoneLine);
 
-            return connection.getSaleState(pdv, password, amount, areaCode, phoneLine).getState();
+            return "[00] - " + saleState.getState() + " - " + saleState.getId();
 
         } catch (MsgException e) {
-            
             return e.getMessage();
         }
     }
 
     /**
+     * @param remoteId
      * @param pdv
      * @param password
      * @param amount
@@ -147,24 +195,26 @@ public class ventas_ws {
      * @return String
      */
     @WebMethod(operationName = "pinSale")
-    public String pinSale(@WebParam(name = "pdv") long pdv,
+    public String pinSale(
+            @WebParam(name = "remoteId") String remoteId, 
+            @WebParam(name = "pdv") long pdv,
             @WebParam(name = "password") String password,
             @WebParam(name = "amount") int amount,
             @WebParam(name = "product") long product) {
 
         try {
 
-            PinSale pinSale = connection.pinSale(pdv, password, amount, product);
+            PinSale pinSale = connection.pinSale(remoteId, pdv, password, amount, product);
 
             return "[00] - " + pinSale.getTxnId() + " - " + pinSale.getPin() + " - " + pinSale.getExtra() + " - " + pinSale.getGloss();
 
         } catch (MsgException e) {
-            
             return e.getMessage();
         }
     }
 
     /**
+     * @param remoteId
      * @param pdv
      * @param password
      * @param amount
@@ -174,7 +224,8 @@ public class ventas_ws {
      * @return String
      */
     @WebMethod(operationName = "granDTSale")
-    public String granDTSale(@WebParam(name = "pdv") long pdv,
+    public String granDTSale(@WebParam(name = "remoteId") String remoteId,
+            @WebParam(name = "pdv") long pdv,
             @WebParam(name = "password") String password,
             @WebParam(name = "amount") int amount,
             @WebParam(name = "product") long product,
@@ -183,15 +234,15 @@ public class ventas_ws {
 
         try {
 
-            return "[00] - " + connection.granDTSale(pdv, password, amount, product, docType, doc);
+            return "[00] - " + connection.granDTSale(remoteId, pdv, password, amount, product, docType, doc);
 
         } catch (MsgException e) {
-            
             return e.getMessage();
         }
     }
 
     /**
+     * @param remoteId
      * @param pdv
      * @param password
      * @param amount
@@ -200,7 +251,8 @@ public class ventas_ws {
      * @return String
      */
     @WebMethod(operationName = "directTVSale")
-    public String directTVSale(@WebParam(name = "pdv") long pdv,
+    public String directTVSale(@WebParam(name = "remoteId") String remoteId,
+            @WebParam(name = "pdv") long pdv,
             @WebParam(name = "password") String password,
             @WebParam(name = "amount") int amount,
             @WebParam(name = "product") long product,
@@ -208,12 +260,11 @@ public class ventas_ws {
 
         try {
 
-            DirecTVSale direcTVSale = connection.directTVSale(pdv, password, amount, product, code);
+            DirecTVSale direcTVSale = connection.directTVSale(remoteId, pdv, password, amount, product, code);
 
             return "[00] - " + direcTVSale.getId() + " - " + direcTVSale.getGloss() + " - " + direcTVSale.getText();
 
         } catch (MsgException e) {
-            
             return e.getMessage();
         }
     }
@@ -232,7 +283,6 @@ public class ventas_ws {
             return connection.getBalance(pdv, password).getBalance().toString();
 
         } catch (MsgException e) {
-            
             return e.getMessage();
         }
     }
@@ -241,7 +291,7 @@ public class ventas_ws {
      * <p>Invoke this method, if the response code is [00], then invoke edenorSale.</p>
      * <pre>
      * {@code
-     * public String edenorPreSale(long pdv, String password, String meterNumber) {
+     * public String edenorPreSale(String remoteId, long pdv, String password, String meterNumber) {
      * 
      *      try {
      * 
@@ -257,21 +307,27 @@ public class ventas_ws {
      * }
      * }
      * </pre>
-     * 
+     *
+     * @param remoteId
      * @param pdv punto de venta
      * @param password
+     * @param product (optional)
      * @param meterNumber número de medidor
      * @return String
      * 
      */
     @WebMethod(operationName = "edenorPreSale")
-    public String edenorPreSale(@WebParam(name = "pdv") long pdv,
+    public String edenorPreSale(@WebParam(name = "remoteId") String remoteId,
+            @WebParam(name = "pdv") long pdv,
             @WebParam(name = "password") String password,
+            @WebParam(name = "product") long product,
             @WebParam(name = "meterNumber") String meterNumber) {
+        
+        if(product == 0) product = 128;
         
         try {
             
-            return "[00] - " + connection.edenorPreSale(pdv, password, 128, meterNumber);
+            return "[00] - " + connection.edenorPreSale(remoteId, pdv, password, product, meterNumber);
             
         } catch (MsgException e) {
             
@@ -283,7 +339,7 @@ public class ventas_ws {
      * <p>Invoke this method, if the response code is [00], then invoke getTicket passing the transaction id returned by this method.</p>
      * <pre>
      * {@code
-     * public String edenorSale(long pdv, String password, int amount, String meterNumber) {
+     * public String edenorSale(String remoteId, long pdv, String password, int amount, String meterNumber) {
      * 
      *      try {
      * 
@@ -299,25 +355,30 @@ public class ventas_ws {
      * }
      * }
      * </pre>
+     * 
+     * @param remoteId
      * @param pdv punto de venta
      * @param password
      * @param amount
+     * @param product (optional)
      * @param meterNumber número de medidor
      * @return String
      */
     @WebMethod(operationName = "edenorSale")
-    public String edenorSale(@WebParam(name = "pdv") long pdv,
+    public String edenorSale(@WebParam(name = "remoteId") String remoteId,
+            @WebParam(name = "pdv") long pdv,
             @WebParam(name = "password") String password,
             @WebParam(name = "amount") int amount,
-            //@WebParam(name = "externalPdv") long externalPdv,
+            @WebParam(name = "product") long product,
             @WebParam(name = "meterNumber") String meterNumber) {
+        
+        if(product == 0) product = 128;
         
         try {
             
-            return "[00] - " + connection.edenorSale(pdv, password, amount, 128, meterNumber);
+            return "[00] - " + connection.edenorSale(remoteId, pdv, password, amount, product, meterNumber);
             
         } catch (MsgException e) {
-            
             return e.getMessage();
         }
     }
@@ -357,7 +418,6 @@ public class ventas_ws {
             return "[00] - " + connection.getTicket(pdv, password, "financial", "id@" + id);
             
         } catch (MsgException e) {
-            
             return e.getMessage();
         }
     }
