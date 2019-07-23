@@ -308,7 +308,6 @@ public class ventas_ws {
      * }
      * </pre>
      *
-     * @param remoteId
      * @param pdv punto de venta
      * @param password
      * @param product (optional)
@@ -317,7 +316,7 @@ public class ventas_ws {
      * 
      */
     @WebMethod(operationName = "edenorPreSale")
-    public String edenorPreSale(@WebParam(name = "remoteId") String remoteId,
+    public String edenorPreSale(
             @WebParam(name = "pdv") long pdv,
             @WebParam(name = "password") String password,
             @WebParam(name = "product") long product,
@@ -327,7 +326,7 @@ public class ventas_ws {
         
         try {
             
-            return "[00] - " + connection.edenorPreSale(remoteId, pdv, password, product, meterNumber);
+            return "[00] - " + connection.edenorPreSale(pdv, password, product, meterNumber);
             
         } catch (MsgException e) {
             
@@ -362,6 +361,7 @@ public class ventas_ws {
      * @param amount
      * @param product (optional)
      * @param meterNumber número de medidor
+     * @param externalMerchantId
      * @return String
      */
     @WebMethod(operationName = "edenorSale")
@@ -370,13 +370,14 @@ public class ventas_ws {
             @WebParam(name = "password") String password,
             @WebParam(name = "amount") int amount,
             @WebParam(name = "product") long product,
-            @WebParam(name = "meterNumber") String meterNumber) {
+            @WebParam(name = "meterNumber") String meterNumber,
+            @WebParam(name = "externalMerchantId") Integer externalMerchantId) {
         
         if(product == 0) product = 128;
         
         try {
             
-            return "[00] - " + connection.edenorSale(remoteId, pdv, password, amount, product, meterNumber);
+            return "[00] - " + connection.edenorSale(remoteId, pdv, password, amount, product, meterNumber, externalMerchantId);
             
         } catch (MsgException e) {
             return e.getMessage();
