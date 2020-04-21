@@ -78,6 +78,25 @@ public class ventas_ws {
     }
     
     /**
+     * <br>
+     * <pre>
+     * {@code
+     * public String getSaleStateByRemoteId(long pdv, String password, String remoteId) {
+     * 
+     *      try {
+     * 
+     *          ...
+     *          ...
+     *      
+     *          return state + " - " + trx_id; // Example: OK - 00000000000123456789; 
+     * 
+     *      } catch (MsgException e) {
+     * 
+     *          return e.getMessage(); // [exception code] - exception message
+     *      }
+     * }
+     * } 
+     * </pre>
      * @param pdv
      * @param password
      * @param remoteId
@@ -90,9 +109,11 @@ public class ventas_ws {
             @WebParam(name = "remoteId") String remoteId) {
 
         try {
+            
+            SaleState saleState = connection.getSaleState(pdv, password, remoteId);
 
-            return connection.getSaleState(pdv, password, remoteId).getState();
-
+            return saleState.getState() + " - " + saleState.getId();
+ 
         } catch (MsgException e) {
             return e.getMessage();
         }
